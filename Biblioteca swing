@@ -1,0 +1,267 @@
+//Importações necessárias
+ 
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.text.ParseException;
+import static javax.swing.JFrame.EXIT_ON_CLOSE;
+import javax.swing.border.TitledBorder;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.text.MaskFormatter;
+
+/**
+ *
+ * @autores Thomaz Souza - 3023101218
+ * Hamilton Carvalho - 3023105822
+ * Felipe Feliciano Emilio - 3023203256
+ * Página 1
+ */
+public class Aplicativo extends JFrame implements ActionListener {
+
+    //Atributos locais da classe:
+    private JPanel pnlCampos, pnlTabela, pnlBotoes, pnlNome, pnlTelefone, pnlCidade;
+    private TitledBorder tituloPnlCampos, tituloPnlTabela, tituloPnlBotoes;
+    private JLabel lblNome, lblTelefone, lblCidade;
+    private JTextField txtNome;
+    private JFormattedTextField txtTelefone;
+    private MaskFormatter mskTelefone;
+    private JTable tblClientes;
+    private DefaultTableModel tblClientesModel;
+    JButton btnAdicionar, btnLimpar;
+    private JComboBox cmbCidades;
+    private DefaultComboBoxModel cmbCidadesModel;
+ 
+    //Construtor, que coloca tudo no lugar
+    public Aplicativo() {
+        definirJanela(); //Chama o método que seta as propriedades da janela
+        pnlCampos = new JPanel(new GridLayout(3, 1)); //Um painel para os campos
+        tituloPnlCampos = BorderFactory.createTitledBorder("Cadastro de Clientes");
+        pnlCampos.setBorder(tituloPnlCampos);
+ 
+        //Painel para os botões:
+        pnlBotoes = new JPanel(new FlowLayout());
+        tituloPnlBotoes = BorderFactory.createTitledBorder("Botões");
+        pnlBotoes.setBorder(tituloPnlBotoes);
+ 
+        //Painel para a tabela
+        pnlTabela = new JPanel(new GridLayout(1, 1));
+        tituloPnlTabela = BorderFactory.createTitledBorder("Tabela de Dados");
+        pnlTabela.setBorder(tituloPnlTabela);
+ 
+        //Seta os labels
+        lblNome = new JLabel("Nome");
+        lblTelefone = new JLabel("Telefone");
+        lblCidade = new JLabel("Cidade");
+        txtNome = new JTextField(50);
+ 
+        //Cria um campo de texto com uma máscara para o telefone
+        try {
+            mskTelefone = new MaskFormatter("(##)####-####");
+            mskTelefone.setPlaceholderCharacter('_');
+        } catch (ParseException ex) {
+            JOptionPane.showMessageDialog(null, "Máscara incorreta");
+        }
+        txtTelefone = new JFormattedTextField(mskTelefone);
+        cmbCidadesModel = new DefaultComboBoxModel();
+        cmbCidades = new JComboBox(cmbCidadesModel);
+ 
+        //Cidades para o combo de seleção
+        String cidade1 = "São Paulo";
+        String cidade2 = "Rio de Janeiro";
+        String cidade3 = "Campinas";
+ 
+        //Acrescenta as cidades
+        cmbCidadesModel.addElement(cidade1);
+        cmbCidadesModel.addElement(cidade2);
+        cmbCidadesModel.addElement(cidade3);
+        pnlNome = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        pnlNome.add(lblNome);
+        pnlNome.add(txtNome);
+        pnlCampos.add(pnlNome);
+ 
+        pnlTelefone = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        pnlTelefone.add(lblTelefone);
+        pnlTelefone.add(txtTelefone);
+        pnlCampos.add(pnlTelefone);
+ 
+        pnlCidade = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        pnlCidade.add(lblCidade);
+        pnlCidade.add(cmbCidades);
+        pnlCampos.add(pnlCidade);
+ 
+        //Seta os botões
+        btnAdicionar = new JButton("Adicionar à tabela");
+        btnAdicionar.addActionListener(this); //Adiciona o Listener ao botão
+        btnLimpar = new JButton("Limpar campos");
+        btnLimpar.addActionListener(this); //Adiciona o Listener ao botão
+        pnlBotoes.add(btnAdicionar);
+        pnlBotoes.add(btnLimpar);
+ 
+        //Define a tabela
+        String[] cols = {"Nome", "Telefone", "Cidade"};
+        tblClientesModel = new DefaultTableModel(cols, 3);
+        tblClientes = new JTable(tblClientesModel);
+        tblClientesModel.setNumRows(0);
+ 
+        JScrollPane scrRolagem = new JScrollPane(tblClientes,
+                JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
+                JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+        pnlTabela.add(scrRolagem);
+ 
+        add(pnlCampos, BorderLayout.NORTH);
+        add(pnlBotoes, BorderLayout.CENTER);
+        add(pnlTabela, BorderLayout.SOUTH);
+    }
+ 
+    //mëtodo para setar algumas proprietdades da janela
+    private void definirJanela() {
+        setTitle("Aplicação de cadastro");
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setLayout(new BorderLayout());
+        setSize(800, 700);
+        setLocation(200, 80);
+    }
+    public static void main(String[] args) {
+         Aplicativo ap = new Aplicativo();
+        ap.setVisible(true);
+    }
+ 
+    //Sobrescrita obrigatória da interface ActionListener
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        /*
+         A ideia é assim: É um listerner para todos os botões.
+         O Listener deve identificar qual botão foi clicado e disparar
+         uma ação específica para cada um
+         */
+        if (e.getSource() == btnAdicionar) { //Para o botão adicionar
+            String[] linha = {txtNome.getText(),
+                txtTelefone.getText(),
+                cmbCidadesModel.getSelectedItem().toString()};
+            tblClientesModel.addRow(linha);
+            JOptionPane.showMessageDialog(this, "Dados adicionados", "Feito", JOptionPane.PLAIN_MESSAGE);
+        } else if (e.getSource() == btnLimpar) { //Para o botão limpar
+            int op = JOptionPane.showConfirmDialog(this, "Quer, realmente, limpar os campos?", "Limpar", 
+                    JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+            if (op == 0) {
+                txtNome.setText(null);
+                txtTelefone.setText(null);
+                cmbCidadesModel.setSelectedItem("São Paulo");
+                txtNome.requestFocus(); //Coloca o cursor no txtNome
+            }
+        }
+    }
+}
+
+
+
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+
+
+/**
+ *
+ * @author Thomaz Souza - 3023101218
+ * Hamilton Carvalho - 3023105822
+ * Felipe Feliciano Emilio - 3023203256
+ * Página 2
+ */
+public class BibliotecaSwing {
+
+   public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            JFrame frame = new DataEntryFrame("Swing Data Entry App");
+            frame.setSize(400, 200);
+            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            frame.setVisible(true);
+        });
+    }
+}
+
+class DataEntryFrame extends JFrame {
+
+    private final JTextField nameField;
+    private final JTextField ageField;
+    private final JTextArea resultArea;
+
+    public DataEntryFrame(String title) {
+        super(title);
+
+        // Layout
+        setLayout(new BorderLayout());
+
+        // Painel para entrada de dados
+        JPanel inputPanel = new JPanel(new GridLayout(3, 2));
+        inputPanel.add(new JLabel("Nome:"));
+        nameField = new JTextField();
+        inputPanel.add(nameField);
+        inputPanel.add(new JLabel("Idade:"));
+        ageField = new JTextField();
+        inputPanel.add(ageField);
+        JButton saveButton = new JButton("Salvar");
+        saveButton.addActionListener(new SaveButtonListener());
+        inputPanel.add(saveButton);
+
+        // Painel para consulta
+        resultArea = new JTextArea();
+        JButton queryButton = new JButton("Consultar");
+        queryButton.addActionListener(new QueryButtonListener());
+
+        // Adiciona componentes ao frame
+        add(inputPanel, BorderLayout.NORTH);
+        add(new JScrollPane(resultArea), BorderLayout.CENTER);
+        add(queryButton, BorderLayout.SOUTH);
+    }
+
+    // Listener para o botão de salvar
+    private class SaveButtonListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            String name = nameField.getText();
+            String age = ageField.getText();
+
+            if (!name.isEmpty() && !age.isEmpty()) {
+                // Grava os dados no arquivo
+                try (BufferedWriter writer = new BufferedWriter(new FileWriter("data.txt", true))) {
+                    writer.write(name + "," + age);
+                    writer.newLine();
+                    writer.flush();
+                    JOptionPane.showMessageDialog(DataEntryFrame.this, "Dados salvos com sucesso!");
+                } catch (IOException ex) {
+                }
+
+                // Limpa os campos de entrada
+                nameField.setText("");
+                ageField.setText("");
+            } else {
+                JOptionPane.showMessageDialog(DataEntryFrame.this, "Por favor, preencha todos os campos.");
+            }
+        }
+    }
+
+    // Listener para o botão de consultar
+    private class QueryButtonListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            // Consulta os dados no arquivo e exibe no JTextArea
+            try (BufferedReader reader = new BufferedReader(new FileReader("data.txt"))) {
+                StringBuilder result = new StringBuilder();
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    result.append(line).append("\n");
+                }
+                resultArea.setText(result.toString());
+            } catch (IOException ex) {
+            }
+        }
+    }
+}
